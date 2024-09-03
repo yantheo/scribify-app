@@ -1,6 +1,6 @@
 FROM python:3
 
-WORKDIR /app
+WORKDIR /api
 
 ENV FLASK_APP=app.py
 
