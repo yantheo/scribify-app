@@ -1,0 +1,24 @@
+services:
+  backend:
+    build: ./server
+    ports:
+      - "80:5000"
+    volumes:
+      - ./server:/app
+    restart: always
+    environment:
+      FLASK_ENV: development
+  
+  frontend:
+    build: ./client/my-app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client/my-app:/usr/src/app
+    restart: always
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true 
+    depends_on:
+      - backend
+
