@@ -2,9 +2,11 @@ FROM node:latest
 
 WORKDIR /usr/src/app
 
-COPY ./package.json ./
+COPY package*.json ./
 
 RUN npm install
+
+RUN npm i -g react-scripts@5.0.0
 
 COPY . .
 
