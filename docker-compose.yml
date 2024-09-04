@@ -4,7 +4,7 @@ services:
     ports:
       - "80:5000"
     volumes:
-      - ./server:/app
+      - ./server:/api
     restart: always
     environment:
       FLASK_ENV: development
@@ -14,7 +14,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./client/my-app:/usr/src/app
+      - ./client/my-app:/app
     restart: always
     environment:
       - CHOKIDAR_USEPOLLING=true
