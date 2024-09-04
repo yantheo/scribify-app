@@ -1,8 +1,10 @@
 services:
   backend:
-    build: ./server
+    build:
+      context: ./server
+      dockerfile: Dockerfile
     ports:
-      - "80:5000"
+      - "5000:5000"
     volumes:
       - ./server:/api
     restart: always
@@ -10,15 +12,15 @@ services:
       FLASK_ENV: development
   
   frontend:
-    build: ./client/my-app
+    build: 
+      context: ./client/my-app
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./client/my-app:/app
-    restart: always
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true 
+      - /app/node_modules
     depends_on:
       - backend
 
