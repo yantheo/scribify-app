@@ -8,19 +8,18 @@ services:
     volumes:
       - ./server:/api
     restart: always
-    environment:
-      FLASK_ENV: development
-  
   frontend:
     build: 
       context: ./client/my-app
       dockerfile: Dockerfile
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 443:443
     volumes:
       - ./client/my-app:/app
       - /app/node_modules
+      - /etc/letsencrypt/archive/scribify.net:/etc/nginx/ssl:ro # Monter les certificats SSL en lecture seule
     depends_on:
       - backend
+    restart: always
 
