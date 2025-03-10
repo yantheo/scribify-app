@@ -9,18 +9,30 @@ services:
       - ./server:/api
     restart: always
   frontend:
+<<<<<<< HEAD
     build:
       context: ./client/my-app
       dockerfile: Dockerfile
     ports:
       - 8080:80
+=======
+    build: 
+      context: ./client/my-app
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+>>>>>>> 26714dbe505203911bf842edbe272d5edbf0e53c
       - 443:443
     volumes:
       - ./client/my-app:/app
       - /app/node_modules
+<<<<<<< HEAD
       #- /etc/letsencrypt/archive/scribify.net:/etc/nginx/ssl:ro # Monter les certificats SSL en lecture seule
       - /etc/letsencrypt/live/scribify.net/fullchain.pem:/etc/nginx/ssl/fullchain1.pem:ro
       - /etc/letsencrypt/live/scribify.net/privkey.pem:/etc/nginx/ssl/privkey1.pem:ro
+=======
+      - /etc/letsencrypt/archive/scribify.net:/etc/nginx/ssl:ro # Monter les certificats SSL en lecture seule
+>>>>>>> 26714dbe505203911bf842edbe272d5edbf0e53c
     depends_on:
       - backend
     restart: always
