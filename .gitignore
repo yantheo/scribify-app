@@ -22,3 +22,7 @@ client/.env.production.local
 client/npm-debug.log*
 client/yarn-debug.log*
 client/yarn-error.log*
+
+# Envirronement de test
+docker-compose.dev.yml
+client/my-app/Dockerfile.dev
