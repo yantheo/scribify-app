@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { Mic, Square, Volume2, FileText } from 'lucide-react';
 
 const Main = () => {
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState("");
   const [transcription, setTranscription] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  // Use local variable for audio chunks
   let audioChunks = [];
 
   const handleStartRecording = () => {
@@ -16,25 +17,22 @@ const Main = () => {
         const recorder = new MediaRecorder(stream);
         setMediaRecorder(recorder);
         setIsRecording(true);
+        setTranscription("");
+        setAudioUrl("");
         recorder.start();
-        console.log("Recording started");
 
         recorder.ondataavailable = (event) => {
-          // Directly push to the audioChunks array
           audioChunks.push(event.data);
         };
 
         recorder.onstop = () => {
-          console.log("Recording stopped");
           setIsRecording(false);
+          setIsProcessing(true);
 
-          // Create Blob from audio chunks
           const audioBlob = new Blob(audioChunks, { type: "audio/mpeg" });
-          console.log(audioBlob); // Check if this prints a Blob with size > 0
           const audioURL = URL.createObjectURL(audioBlob);
           setAudioUrl(audioURL);
 
-          // Send audio to the server
           const formData = new FormData();
           formData.append("audio", audioBlob);
 
@@ -49,62 +47,136 @@ const Main = () => {
               return response.json();
             })
             .then((data) => {
-              console.log("Server response:", data);
               if (data.transcription) {
                 setTranscription(data.transcription);
               } else if (data.error) {
                 setTranscription("An error occurred during recording");
               }
+              setIsProcessing(false);
             })
             .catch((error) => {
               console.error("Error sending audio:", error);
+              setTranscription("Error: Unable to transcribe audio");
+              setIsProcessing(false);
             });
         };
       })
       .catch((error) => {
         console.error("Error accessing the microphone:", error);
+        alert("Unable to access microphone. Please check your permissions.");
       });
   };
 
   const handleStopRecording = () => {
     if (mediaRecorder) {
       mediaRecorder.stop();
-    } else {
-      console.error("MediaRecorder is not defined");
     }
   };
 
   return (
-    <div className="text-center container-fluid">
-      <h1>Scribify | Speak It Out, Anytime, Anywhere.</h1>
-      <section className="container">
-        <audio id="audio-player" controls src={audioUrl}></audio>
-        <br />
-        <br />
-
-        <button
-          type="button"
-          className="btn btn-success"
-          id="start-btn"
-          onClick={handleStartRecording}
-          disabled={isRecording}
-        >
-          Record
-        </button>
-        <button
-          type="button"
-          className="btn btn-danger"
-          id="stop-btn"
-          onClick={handleStopRecording}
-          disabled={!isRecording}
-        >
-          Stop
-        </button>
-
-        <div className="response">
-          <p className="text-response">{transcription}</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="container mx-auto px-6 py-16">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-4">
+            Scribify
+          </h1>
+          <p className="text-xl text-slate-600 font-light">
+            Speak It Out, Anytime, Anywhere.
+          </p>
         </div>
-      </section>
+
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+
+            {isRecording && (
+              <div className="mb-8 flex items-center justify-center space-x-3">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-8 bg-red-500 rounded-full animate-pulse"></div>
+                  <div className="w-2 h-12 bg-red-500 rounded-full animate-pulse delay-75"></div>
+                  <div className="w-2 h-10 bg-red-500 rounded-full animate-pulse delay-150"></div>
+                </div>
+                <span className="text-red-500 font-semibold">Recording...</span>
+              </div>
+            )}
+
+            <div className="flex flex-col items-center space-y-6 mb-8">
+              <div className="flex space-x-4">
+                <button
+                  onClick={handleStartRecording}
+                  disabled={isRecording}
+                  className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold text-white shadow-lg transform transition-all duration-200 ${
+                    isRecording
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-emerald-500 hover:bg-emerald-600 hover:scale-105 active:scale-95'
+                  }`}
+                >
+                  <Mic className="w-5 h-5" />
+                  <span>Record</span>
+                </button>
+
+                <button
+                  onClick={handleStopRecording}
+                  disabled={!isRecording}
+                  className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold text-white shadow-lg transform transition-all duration-200 ${
+                    !isRecording
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-red-500 hover:bg-red-600 hover:scale-105 active:scale-95'
+                  }`}
+                >
+                  <Square className="w-5 h-5" />
+                  <span>Stop</span>
+                </button>
+              </div>
+            </div>
+
+            {audioUrl && (
+              <div className="mb-8 p-6 bg-slate-50 rounded-xl">
+                <div className="flex items-center space-x-3 mb-3">
+                  <Volume2 className="w-5 h-5 text-slate-600" />
+                  <h3 className="text-lg font-semibold text-slate-900">Audio Recording</h3>
+                </div>
+                <audio
+                  controls
+                  src={audioUrl}
+                  className="w-full"
+                ></audio>
+              </div>
+            )}
+
+            {isProcessing && (
+              <div className="p-6 bg-blue-50 rounded-xl text-center">
+                <div className="flex items-center justify-center space-x-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                  <span className="text-blue-700 font-medium">Processing transcription...</span>
+                </div>
+              </div>
+            )}
+
+            {transcription && !isProcessing && (
+              <div className="p-6 bg-slate-50 rounded-xl">
+                <div className="flex items-center space-x-3 mb-4">
+                  <FileText className="w-5 h-5 text-slate-600" />
+                  <h3 className="text-lg font-semibold text-slate-900">Transcription</h3>
+                </div>
+                <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">
+                  {transcription}
+                </p>
+              </div>
+            )}
+
+            {!isRecording && !audioUrl && !transcription && (
+              <div className="text-center py-12">
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-100 mb-4">
+                  <Mic className="w-10 h-10 text-slate-400" />
+                </div>
+                <p className="text-slate-500">
+                  Click the Record button to start capturing audio
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
