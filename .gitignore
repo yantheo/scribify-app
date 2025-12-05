@@ -1,0 +1,8 @@
+# Backend
+server/.env
+server/__pycache__/
+server/*.pyc
+
+# Frontend
+client/node_modules/
+client/build/
