@@ -9,7 +9,7 @@ server/.venv/
 server/*.egg-info/
 
 # Frontend (client)
-client/node_modules/
+client/my-app/node_modules/
 client/.pnp
 client/.pnp.js
 client/coverage/
